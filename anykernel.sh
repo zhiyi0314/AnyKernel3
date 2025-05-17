@@ -94,35 +94,38 @@ elif [ -f "$AKHOME/ksu_module_susfs_1.5.2+_CI.zip" ]; then
     MODULE_PATH="$AKHOME/ksu_module_susfs_1.5.2+_CI.zip"
     ui_print "  -> Installing SUSFS module from CI"
 else
-    ui_print "  -> No module found!"
-    exit 1
+    ui_print "  -> No SUSFS module found, skipping installation"
+    MODULE_PATH=""
 fi
 
-KSUD_PATH="/data/adb/ksud"
-ui_print "安装 SUSFS 模块?"
-ui_print "音量上跳过安装；音量下安装模块"
-ui_print "Install susfs4ksu Module?"
-ui_print "Volume UP: NO；Volume DOWN: YES"
+# 安装 SUSFS 模块（可选）
+if [ -n "$MODULE_PATH" ]; then
+    KSUD_PATH="/data/adb/ksud"
+    ui_print "安装 SUSFS 模块?"
+    ui_print "音量上跳过安装；音量下安装模块"
+    ui_print "Install susfs4ksu Module?"
+    ui_print "Volume UP: NO；Volume DOWN: YES"
 
-key_click=""
-while [ "$key_click" = "" ]; do
-    key_click=$(getevent -qlc 1 | awk '{ print $3 }' | grep 'KEY_VOLUME')
-    sleep 0.2
-done
-case "$key_click" in
-    "KEY_VOLUMEDOWN")
-        if [ -f "$KSUD_PATH" ]; then
-            ui_print "Installing SUSFS Module..."
-            /data/adb/ksud module install "$MODULE_PATH"
-            ui_print "Installation Complete"
-        else
-            ui_print "KSUD Not Found, Skipping Installation"
-        fi
-        ;;
-    "KEY_VOLUMEUP")
-        ui_print "Skipping SUSFS Module Installation"
-        ;;
-    *)
-        ui_print "Unknown Key Input, Skipping Installation"
-        ;;
-esac
+    key_click=""
+    while [ "$key_click" = "" ]; do
+        key_click=$(getevent -qlc 1 | awk '{ print $3 }' | grep 'KEY_VOLUME')
+        sleep 0.2
+    done
+    case "$key_click" in
+        "KEY_VOLUMEDOWN")
+            if [ -f "$KSUD_PATH" ]; then
+                ui_print "Installing SUSFS Module..."
+                /data/adb/ksud module install "$MODULE_PATH"
+                ui_print "Installation Complete"
+            else
+                ui_print "KSUD Not Found, Skipping Installation"
+            fi
+            ;;
+        "KEY_VOLUMEUP")
+            ui_print "Skipping SUSFS Module Installation"
+            ;;
+        *)
+            ui_print "Unknown Key Input, Skipping Installation"
+            ;;
+    esac
+fi
