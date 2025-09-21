@@ -44,40 +44,51 @@ esac
 ui_print "  -> ksu_supported: $ksu_supported"
 $ksu_supported || abort "  -> Non-GKI device, abort."
 
-# 确定 root 方式
+# =============
+# 检测 Root 方式 (Magisk 检测)
+# =============
 if [ -d /data/adb/magisk ] || [ -f /sbin/.magisk ]; then
-    ui_print "检测到 Magisk，当前 Root 方式为 Magisk。在此情况下刷写 KSU 内核有很大可能会导致你的设备变砖，是否要继续？"
-    ui_print "Magisk detected, current root method is Magisk. Flashing the KSU kernel in this case may brick your device, do you want to continue?"
-    ui_print "请选择操作："
-    ui_print "Please select an action:"
-    ui_print "音量上键：退出脚本"
-    ui_print "Volume up key: No"
-    ui_print "音量下键：继续安装"
-    ui_print "Volume down button: Yes"
+    ui_print "============="
+    ui_print " 检测到 Magisk 或残留文件"
+    ui_print " 在此情况下刷写内核可能会导致设备变砖"
+    ui_print " 是否要继续安装？"
+    ui_print " Magisk has been detected (or residual files)."
+    ui_print " Flashing the kernel may brick your device"
+    ui_print " Do you want to continue?"
+    ui_print "-----------------"
+    ui_print " 音量上键：退出脚本 (推荐)"
+    ui_print " 音量下键：继续安装 (风险自负)"
+    ui_print " Volume UP: Exit script (recommended)"
+    ui_print " Volume DOWN: Continue installation (at your own risk)"
+    ui_print "============="
+
     key_click=""
     while [ "$key_click" = "" ]; do
         key_click=$(getevent -qlc 1 | awk '{ print $3 }' | grep 'KEY_VOLUME')
         sleep 0.2
     done
+
     case "$key_click" in
-        "KEY_VOLUMEUP") 
-            ui_print "您选择了退出脚本"
-            ui_print "Exiting…"
+        "KEY_VOLUMEUP")
+            ui_print " 您选择了退出脚本，已安全终止安装。"
+            ui_print " You chose to exit. Installation aborted safely."
             exit 0
             ;;
         "KEY_VOLUMEDOWN")
-            ui_print "You have chosen to continue the installation"
+            ui_print " 您选择了继续安装，请注意风险!"
+            ui_print " You chose to continue installation. Proceed with caution!"
             ;;
         *)
-            ui_print "未知按键，退出脚本"
-            ui_print "Unknown key, exit script"
+            ui_print " 未知按键输入，脚本已退出。"
+            ui_print " Unknown key input. Exiting script."
             exit 1
             ;;
     esac
 fi
 
 ui_print "开始安装内核..."
-ui_print "Power by GitHub@Numbersf(Aq1298&咿云冷雨)"
+ui_print "Powered by GitHub@Numbersf (Aq1298 & 咿云冷雨)"
+
 if [ -L "/dev/block/bootdevice/by-name/init_boot_a" ] || [ -L "/dev/block/by-name/init_boot_a" ]; then
     split_boot
     flash_boot
@@ -86,46 +97,58 @@ else
     write_boot
 fi
 
-# 优先选择模块路径
+# =============
+# SUSFS 模块安装
+# =============
 if [ -f "$AKHOME/ksu_module_susfs_1.5.2+_Release.zip" ]; then
     MODULE_PATH="$AKHOME/ksu_module_susfs_1.5.2+_Release.zip"
-    ui_print "  -> Installing SUSFS Module from Release"
+    ui_print "  -> Found SUSFS Module (Release)"
 elif [ -f "$AKHOME/ksu_module_susfs_1.5.2+_CI.zip" ]; then
     MODULE_PATH="$AKHOME/ksu_module_susfs_1.5.2+_CI.zip"
-    ui_print "  -> Installing SUSFS Module from CI"
+    ui_print "  -> Found SUSFS Module (CI)"
 else
-    ui_print "  -> No SUSFS Module found,Installing SUSFS Module from NON,Skipping Installation"
     MODULE_PATH=""
+    ui_print "  -> No SUSFS Module found.You may have selected NON mode,skipping installation."
 fi
 
-# 安装 SUSFS 模块（可选）
 if [ -n "$MODULE_PATH" ]; then
     KSUD_PATH="/data/adb/ksud"
-    ui_print "安装 SUSFS 模块?"
-    ui_print "音量上跳过安装；音量下安装模块"
-    ui_print "Install susfs4ksu Module?"
-    ui_print "Volume UP: NO；Volume DOWN: YES"
+    ui_print "============="
+    ui_print " 是否安装 SUSFS 模块？"
+    ui_print " Install susfs4ksu Module?"
+    ui_print "-----------------"
+    ui_print " 音量上键：跳过安装"
+    ui_print " 音量下键：安装模块"
+    ui_print " Volume UP: Skip installation"
+    ui_print " Volume DOWN: Install module"
+    ui_print "============="
 
     key_click=""
     while [ "$key_click" = "" ]; do
         key_click=$(getevent -qlc 1 | awk '{ print $3 }' | grep 'KEY_VOLUME')
         sleep 0.2
     done
+
     case "$key_click" in
         "KEY_VOLUMEDOWN")
             if [ -f "$KSUD_PATH" ]; then
-                ui_print "Installing SUSFS Module..."
+                ui_print " 正在安装 SUSFS 模块..."
+                ui_print " Installing SUSFS Module..."
                 /data/adb/ksud module install "$MODULE_PATH"
-                ui_print "Installation Complete"
+                ui_print " 安装完成!"
+                ui_print " Installation complete!"
             else
-                ui_print "KSUD Not Found, Skipping Installation"
+                ui_print " 未找到 KSUD，跳过安装。"
+                ui_print " KSUD not found. Skipping installation."
             fi
             ;;
         "KEY_VOLUMEUP")
-            ui_print "Skipping SUSFS Module Installation"
+            ui_print " 已跳过 SUSFS 模块安装。"
+            ui_print " Skipped SUSFS Module installation."
             ;;
         *)
-            ui_print "Unknown Key Input, Skipping Installation"
+            ui_print " 未知按键输入，已跳过 SUSFS 模块安装。"
+            ui_print " Unknown key input. Skipped SUSFS Module installation."
             ;;
     esac
 fi
