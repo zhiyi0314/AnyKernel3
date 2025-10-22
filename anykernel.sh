@@ -5,7 +5,7 @@
 ### AnyKernel setup
 # global properties
 properties() { '
-kernel.string=OnePlus Kernel by Numbersf
+kernel.string=OnePlus Ace2 Kernel by Numbersf
 do.devicecheck=0
 do.modules=0
 do.systemless=0
@@ -86,7 +86,7 @@ if [ -d /data/adb/magisk ] || [ -f /sbin/.magisk ]; then
     esac
 fi
 
-ui_print "开始安装内核..."
+ui_print "开始安装内核...(Ace2玩家请不要修补kpm,大概率卡锁屏，如果已经修补kpm请不要重启，重新安装内核即可)"
 ui_print "Powered by GitHub@Numbersf (Aq1298 & 咿云冷雨)"
 
 if [ -L "/dev/block/bootdevice/by-name/init_boot_a" ] || [ -L "/dev/block/by-name/init_boot_a" ]; then
