@@ -1,11 +1,10 @@
 ### AnyKernel3 Ramdisk Mod Script
-## KernelSU with SUSFS By Numbersf
 ## osm0sis @ xda-developers
 
 ### AnyKernel setup
 # global properties
 properties() { '
-kernel.string=OnePlus Kernel by Numbersf
+kernel.string=OnePlus Kernel by zhiyi0314
 do.devicecheck=0
 do.modules=0
 do.systemless=0
@@ -87,7 +86,7 @@ if [ -d /data/adb/magisk ] || [ -f /sbin/.magisk ]; then
 fi
 
 ui_print "开始安装内核..."
-ui_print "Powered by GitHub@Numbersf (Aq1298 & 咿云冷雨)"
+ui_print "Powered by GitHub@zhiyi0314"
 
 if [ -L "/dev/block/bootdevice/by-name/init_boot_a" ] || [ -L "/dev/block/by-name/init_boot_a" ]; then
     split_boot
@@ -151,4 +150,23 @@ if [ -n "$MODULE_PATH" ]; then
             ui_print " Unknown key input. Skipped SUSFS Module installation."
             ;;
     esac
+fi
+# =============
+# 管理器 APK 安装
+# =============
+if [ -f "$AKHOME/manager.apk" ]; then
+    ui_print " 正在安装管理器应用..."
+    ui_print " Installing Manager App..."
+    
+    if pm install -r "$AKHOME/manager.apk" 2>/dev/null; then
+        ui_print " 管理器应用安装成功!"
+        ui_print " Manager App installed successfully!"
+    else
+        ui_print " 安装失败，请手动安装管理器应用。"
+        ui_print " Installation failed, please install Manager App manually."
+        
+    fi
+else
+    ui_print " 未找到 manager.apk，跳过应用安装。"
+    ui_print " manager.apk not found, skipping app installation."
 fi
